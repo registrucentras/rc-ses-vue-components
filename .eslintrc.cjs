@@ -36,13 +36,26 @@ module.exports = {
     '@typescript-eslint/no-explicit-any': 'off',
     'vue/prop-name-casing': 'off',
     'vue/dot-notation': 'off',
+    'import/no-extraneous-dependencies': [
+      'error',
+      {
+        devDependencies: [
+          '**/*.stories.*',
+          '**/*.test.*',
+          '**/.storybook/**/*.*',
+          'vitest.config.ts',
+          'src/setupTests.ts',
+        ],
+        peerDependencies: true,
+      },
+    ],
   },
-	globals: {
-		Entry: true,
-	},
-	parserOptions: {
-		parser: '@typescript-eslint/parser',
-	},
+  globals: {
+    Entry: true,
+  },
+  parserOptions: {
+    parser: '@typescript-eslint/parser',
+  },
 
   /*  parser: 'vue-eslint-parser',
   /!*parserOptions: {

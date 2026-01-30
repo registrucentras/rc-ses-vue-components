@@ -33,7 +33,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, withDefaults } from 'vue'
+import { computed } from 'vue'
 
 import AlertDefaults from '@/components/common/Alert/defaults'
 import type { AlertProps } from '@/components/common/Alert/types'
