@@ -47,6 +47,12 @@
         />
       </template>
 
+      <template v-if="searchable" #no-data>
+        <v-list-item class="rc-menu-list-item">{{
+          t('RcSesSelectField.noData', { ns: 'components' })
+        }}</v-list-item>
+      </template>
+
       <template #item="{ item, props }">
         <v-list-item
           v-bind="props"
@@ -73,6 +79,7 @@
 </template>
 
 <script setup lang="ts">
+import { useTranslation } from 'i18next-vue'
 import { v4 as uuidv4 } from 'uuid'
 import { computed, ref, watch } from 'vue'
 
@@ -85,6 +92,8 @@ import type {
 } from '@/components/common/inputs/SelectField/type'
 
 import './style.scss'
+
+const { t } = useTranslation()
 
 defineOptions({
   inheritAttrs: false,

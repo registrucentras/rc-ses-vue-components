@@ -32,6 +32,14 @@ const i18n = () => {
           RcSesFileInput: {
             label: 'Įkelti failą',
           },
+
+          RcSesSearchableArea: {
+            placeholder: 'Ieškoti',
+          },
+
+          RcSesSelectField: {
+            noData: 'Nėra duomenų',
+          },
         },
       },
       en: {
@@ -50,6 +58,14 @@ const i18n = () => {
 
           RcSesFileInput: {
             label: 'Upload file',
+          },
+
+          RcSesSearchableArea: {
+            placeholder: 'Search',
+          },
+
+          RcSesSelectField: {
+            noData: 'No results',
           },
         },
       },

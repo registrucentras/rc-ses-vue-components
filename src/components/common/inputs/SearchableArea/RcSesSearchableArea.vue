@@ -3,7 +3,7 @@
     <RcSesSearchField
       v-model="model"
       append-icon="$close"
-      placeholder="Ieškoti"
+      :placeholder="t('RcSesSearchableArea.placeholder', { ns: 'components' })"
       @click:append="() => clear()"
     >
       <template #clear><span></span></template>
@@ -21,11 +21,14 @@
 </template>
 
 <script setup lang="ts">
+import { useTranslation } from 'i18next-vue'
 import { ref } from 'vue'
 
 import RcSesSearchField from '@/components/common/inputs/SearchField/RcSesSearchField.vue'
 
 import './style.scss'
+
+const { t } = useTranslation()
 
 const emits = defineEmits(['updateCheckAll', 'cleared'])
 const checkAll = ref<boolean>(false)
