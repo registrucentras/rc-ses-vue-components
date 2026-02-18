@@ -1,7 +1,7 @@
 {
   "name": "@registrucentras/rc-ses-vue-components",
   "author": "VĮ REGISTRŲ CENTRAS",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "RC SES Vue.js komponentų biblioteka",
   "type": "module",
   "private": false,
