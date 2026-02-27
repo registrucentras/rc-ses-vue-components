@@ -20,6 +20,7 @@
       :placeholder="placeholder"
       :items="computedItems"
       :hide-details="!(!!error || !!counter || !!messages)"
+      :hide-selected="!!searchValue"
       :error="!!error"
       :error-messages="error"
       :menu-props="menuProps"
@@ -132,7 +133,8 @@ const computedItems = computed(() => {
 
   return selectProps.items.filter((item: SelectFieldItemType) =>
     searchValue.value
-      ? getItemValueForSearch(item).includes(searchValue.value.toLowerCase().trim())
+      ? getItemValueForSearch(item).includes(searchValue.value.toLowerCase().trim()) ||
+        (model?.value ?? []).includes(item.value)
       : false,
   )
 })
