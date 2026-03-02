@@ -1,7 +1,7 @@
 {
   "name": "@registrucentras/rc-ses-vue-components",
   "author": "VĮ REGISTRŲ CENTRAS",
-  "version": "0.2.2",
+  "version": "0.3.0",
   "description": "RC SES Vue.js komponentų biblioteka",
   "type": "module",
   "private": false,
@@ -24,6 +24,10 @@
     "src/*",
     "package.json"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/registrucentras/rc-ses-vue-components.git"
+  },
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc --noEmit && vite build",

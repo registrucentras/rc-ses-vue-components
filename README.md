@@ -45,7 +45,3 @@ Alternatyviai, esant poreikiui pavyzdinės formos peržiūra galima ir *developm
 
  - sukompiliuokite aplikaciją: `npm run dev`;
  - naršyklėje atidarykite [http://localhost:3000/](http://localhost:3000/);
-
-## *npm* biblioteka
-
-Versijuojama sukompiliuota *npm* biblioteka bus prieinama artimiausiu metu.

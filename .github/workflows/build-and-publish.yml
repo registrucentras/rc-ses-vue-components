@@ -3,36 +3,35 @@ name: Build and Publish
 on:
   release:
     types: [published]
-
-env:
-  REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
+  pull_request:
 
 jobs:
   build:
     runs-on: ubuntu-latest
     permissions:
-        contents: read
-        packages: write
+      contents: read
+      checks: write
+
     steps:
       - name: Check out the repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: '18.x'
-          registry-url: 'https://npm.pkg.github.com/'
+          node-version: '22'
+          registry-url: 'https://registry.npmjs.org/'
+          scope: '@registrucentras'
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
       - name: Test
         run: npm run test:run
 
       - name: Test Report
         uses: dorny/test-reporter@v1
-        if: (success() || failure()) && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false)
+        if: success() || failure()
         continue-on-error: true
         with:
           name: Test Results
@@ -43,7 +42,8 @@ jobs:
       - name: Build the library
         run: npm run build:lib
 
-      - name: Publish to GitHub Packages
-        run: npm publish --access public
+      - name: Publish to npm
+        if: github.event_name == 'release'
+        run: npm publish --access public --registry=https://registry.npmjs.org
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
