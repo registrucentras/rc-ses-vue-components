@@ -50,6 +50,8 @@
     "src/*.d.ts",
     "src/*.vue",
     "src/*.ts",
+    "src/**/*.test.ts",
+    "src/**/*.spec.ts"
   ],
   "include": [
     "src/**/*.vue",
