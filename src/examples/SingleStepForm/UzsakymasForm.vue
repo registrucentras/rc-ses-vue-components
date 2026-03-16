@@ -389,10 +389,12 @@ useForm({
 })
 
 function onSubmit(values) {
+  // eslint-disable-next-line no-console
   console.log('Form submitted with values:', values)
 }
 
 function onDrop(files) {
+  // eslint-disable-next-line no-console
   console.log('Files dropped:', files)
 }
 </script>

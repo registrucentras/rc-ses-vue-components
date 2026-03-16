@@ -29,6 +29,7 @@ const submit = () => {
     formController.submitForm()
 
     if (formController.meta.value.valid) {
+      // eslint-disable-next-line no-console
       console.log('Form is valid', formController.values)
     }
   }
