@@ -81,6 +81,7 @@ const accordionController = useAccordionController({
     state: 'active',
     title: 'Paslaugos užsakymas',
     onClick: (item) => {
+      // eslint-disable-next-line no-console
       console.log('serviceForm clicked', item)
     },
   },
