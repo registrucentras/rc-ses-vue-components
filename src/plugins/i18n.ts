@@ -80,6 +80,44 @@ const i18n = () => {
             label: 'Kraunama...',
           },
 
+          RcSesInputV2: {
+            optional: '(neprivaloma)',
+            clear: 'Išvalyti',
+          },
+
+          RcSesDropdownV2: {
+            all: 'Visi',
+            empty: 'Nerasta',
+            searchPlaceholder: 'Ieškoti',
+            selectedCount: 'Pasirinkta: {{count}}',
+          },
+
+          RcSesDatePickerV2: {
+            previousMonth: 'Ankstesnis mėnuo',
+            nextMonth: 'Kitas mėnuo',
+            openCalendar: 'Atidaryti kalendorių',
+            placeholder: 'Pasirinkite datą',
+          },
+
+          RcSesTooltipV2: {
+            accessibleLabel: 'Papildoma informacija',
+          },
+
+          RcSesFilterDropdownV2: {
+            empty: 'Nerasta',
+            selectedCount: 'Pasirinkta: {{count}}',
+          },
+
+          RcSesFiltersV2: {
+            searchPlaceholder: 'Ieškoti...',
+            clear: 'Išvalyti filtrus',
+            clearShort: 'Išvalyti',
+            sheetTitle: 'Filtrai',
+            moreFilters: 'Daugiau filtrų',
+            mobileTrigger: 'Filtrai',
+            apply: 'Taikyti ({{count}})',
+          },
+
           RcSesModalV2: {
             actions: {
               destructive: {
@@ -162,6 +200,44 @@ const i18n = () => {
 
           RcSesLoaderV2: {
             label: 'Loading...',
+          },
+
+          RcSesInputV2: {
+            optional: '(optional)',
+            clear: 'Clear',
+          },
+
+          RcSesDropdownV2: {
+            all: 'All',
+            empty: 'No results',
+            searchPlaceholder: 'Search',
+            selectedCount: 'Selected: {{count}}',
+          },
+
+          RcSesDatePickerV2: {
+            previousMonth: 'Previous month',
+            nextMonth: 'Next month',
+            openCalendar: 'Open calendar',
+            placeholder: 'Select a date',
+          },
+
+          RcSesTooltipV2: {
+            accessibleLabel: 'Additional information',
+          },
+
+          RcSesFilterDropdownV2: {
+            empty: 'No results',
+            selectedCount: 'Selected: {{count}}',
+          },
+
+          RcSesFiltersV2: {
+            searchPlaceholder: 'Search...',
+            clear: 'Clear filters',
+            clearShort: 'Clear',
+            sheetTitle: 'Filters',
+            moreFilters: 'More filters',
+            mobileTrigger: 'Filters',
+            apply: 'Apply ({{count}})',
           },
 
           RcSesModalV2: {

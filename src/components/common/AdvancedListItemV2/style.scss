@@ -33,6 +33,15 @@
     width: 100%;
   }
 
+  &__start {
+    align-items: center;
+    align-self: center;
+    display: flex;
+    flex-shrink: 0;
+    gap: spacing-v2.rc-spacing-v2('list-item-gap-v2');
+    min-width: 0;
+  }
+
   &__leading {
     align-items: center;
     align-self: center;
@@ -220,6 +229,81 @@
 
     .rc-ses-advanced-list-item-v2__leading {
       pointer-events: none;
+    }
+  }
+
+  // Wrap: auto — default horizontal layout (existing behaviour)
+
+  // Wrap: off — horizontal; title single line + ellipsis (narrow tiles)
+  &--wrap-off {
+    .rc-ses-advanced-list-item-v2__title-row {
+      flex-wrap: nowrap;
+    }
+
+    .rc-ses-advanced-list-item-v2__title {
+      display: block;
+      flex-wrap: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
+
+  // Wrap: stacked — top row: Leading/Media + Trailing (centered); Content full width below.
+  // Trailing may wrap its own actions; the trailing block stays on the top row.
+  &--wrap-stacked {
+    .rc-ses-advanced-list-item-v2__body {
+      align-items: center;
+      display: grid;
+      grid-template-areas:
+        'start trailing'
+        'content content';
+      // start = intrinsic; trailing column gets remaining space (actions align end, may wrap)
+      grid-template-columns: auto minmax(0, 1fr);
+      column-gap: spacing-v2.rc-spacing-v2('list-item-gap-v2');
+      row-gap: spacing-v2.rc-spacing-v2('list-item-gap-v2');
+    }
+
+    .rc-ses-advanced-list-item-v2__start {
+      align-self: center;
+      grid-area: start;
+    }
+
+    .rc-ses-advanced-list-item-v2__trailing {
+      align-self: center;
+      flex: 0 1 auto;
+      flex-wrap: wrap;
+      grid-area: trailing;
+      justify-content: flex-end;
+      justify-self: end;
+      max-width: 100%;
+      min-width: 0;
+    }
+
+    .rc-ses-advanced-list-item-v2__content {
+      flex: none;
+      grid-area: content;
+      width: 100%;
+    }
+
+    &.rc-ses-advanced-list-item-v2--no-start .rc-ses-advanced-list-item-v2__body {
+      grid-template-areas:
+        'trailing'
+        'content';
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    &.rc-ses-advanced-list-item-v2--no-trailing .rc-ses-advanced-list-item-v2__body {
+      grid-template-areas:
+        'start'
+        'content';
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    &.rc-ses-advanced-list-item-v2--no-start.rc-ses-advanced-list-item-v2--no-trailing
+      .rc-ses-advanced-list-item-v2__body {
+      grid-template-areas: 'content';
+      grid-template-columns: minmax(0, 1fr);
     }
   }
 }

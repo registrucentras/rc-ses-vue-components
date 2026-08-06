@@ -1,5 +1,6 @@
 import { fireEvent, render, screen } from '@testing-library/vue'
 import { describe, expect, it } from 'vitest'
+import { ref } from 'vue'
 
 import RcSesAdvancedListV2 from '@/components/common/AdvancedListV2/RcSesAdvancedListV2.vue'
 
@@ -206,5 +207,89 @@ describe('RcSesAdvancedListItemV2', () => {
     expect(container.querySelector('.rc-ses-advanced-list-item-v2')).toHaveStyle({
       '--rc-ses-list-item-level': '2',
     })
+  })
+
+  it('applies wrap-auto class by default', () => {
+    const { container } = renderItem()
+
+    expect(container.querySelector('.rc-ses-advanced-list-item-v2')).toHaveClass(
+      'rc-ses-advanced-list-item-v2--wrap-auto',
+    )
+  })
+
+  it('applies wrap-off class', () => {
+    const { container } = renderItem({ wrap: 'off' })
+
+    expect(container.querySelector('.rc-ses-advanced-list-item-v2')).toHaveClass(
+      'rc-ses-advanced-list-item-v2--wrap-off',
+    )
+  })
+
+  it('applies wrap-stacked class with start and trailing regions', () => {
+    const { container } = renderItem(
+      { wrap: 'stacked' },
+      {
+        leading: '<span data-testid="leading">L</span>',
+        trailing: '<button type="button">Pašalinti</button>',
+      },
+    )
+
+    const item = container.querySelector('.rc-ses-advanced-list-item-v2')
+    expect(item).toHaveClass('rc-ses-advanced-list-item-v2--wrap-stacked')
+    expect(container.querySelector('.rc-ses-advanced-list-item-v2__start')).toBeTruthy()
+    expect(
+      container.querySelector('.rc-ses-advanced-list-item-v2__trailing'),
+    ).toBeTruthy()
+    expect(item).not.toHaveClass('rc-ses-advanced-list-item-v2--no-start')
+    expect(item).not.toHaveClass('rc-ses-advanced-list-item-v2--no-trailing')
+  })
+
+  it('marks stacked item without trailing', () => {
+    const { container } = renderItem(
+      { wrap: 'stacked', showTrailing: false },
+      { leading: '<span>L</span>' },
+    )
+
+    expect(container.querySelector('.rc-ses-advanced-list-item-v2')).toHaveClass(
+      'rc-ses-advanced-list-item-v2--no-trailing',
+    )
+  })
+
+  it('shows leading and trailing after slots are added on a later render', async () => {
+    render({
+      components: { RcSesAdvancedListItemV2 },
+      setup() {
+        const hasActions = ref(false)
+        return { hasActions }
+      },
+      template: `
+        <div>
+          <RcSesAdvancedListItemV2 title="Item" :show-leading="true" :show-trailing="true">
+            <template v-if="hasActions" #leading>
+              <span data-testid="leading">L</span>
+            </template>
+            <template v-if="hasActions" #trailing>
+              <span data-testid="trailing">T</span>
+            </template>
+          </RcSesAdvancedListItemV2>
+          <button type="button" @click="hasActions = true">Show actions</button>
+        </div>
+      `,
+    })
+
+    const item = document.querySelector('.rc-ses-advanced-list-item-v2')
+    expect(item).toHaveClass('rc-ses-advanced-list-item-v2--no-start')
+    expect(item).toHaveClass('rc-ses-advanced-list-item-v2--no-trailing')
+    expect(screen.queryByTestId('leading')).not.toBeInTheDocument()
+    expect(screen.queryByTestId('trailing')).not.toBeInTheDocument()
+
+    await fireEvent.click(screen.getByRole('button', { name: 'Show actions' }))
+
+    expect(screen.getByTestId('leading')).toBeInTheDocument()
+    expect(screen.getByTestId('trailing')).toBeInTheDocument()
+    expect(document.querySelector('.rc-ses-advanced-list-item-v2__start')).toBeTruthy()
+    expect(document.querySelector('.rc-ses-advanced-list-item-v2__trailing')).toBeTruthy()
+    expect(item).not.toHaveClass('rc-ses-advanced-list-item-v2--no-start')
+    expect(item).not.toHaveClass('rc-ses-advanced-list-item-v2--no-trailing')
   })
 })

@@ -1,0 +1,124 @@
+@use '/src/styles/vuetify/borders-v2' as borders-v2;
+@use '/src/styles/vuetify/elevation-v2' as elevation-v2;
+@use '/src/styles/vuetify/sizes-v2' as sizes-v2;
+@use '/src/styles/vuetify/spacing-v2' as spacing-v2;
+@use '/src/styles/vuetify/typography-v2' as typo-v2;
+
+$arrow-size: 8px;
+$arrow-inset: calc(#{$arrow-size} / 2 * -1);
+
+.rc-ses-tooltip-v2 {
+  display: inline-flex;
+  line-height: 0;
+  vertical-align: middle;
+
+  &__activator {
+    align-items: center;
+    appearance: none;
+    background: transparent;
+    border: 0;
+    color: rgb(var(--v-theme-text-muted-v2));
+    cursor: pointer;
+    display: inline-flex;
+    flex-shrink: 0;
+    height: sizes-v2.rc-size-v2('size-16-v2');
+    justify-content: center;
+    line-height: 0;
+    margin: 0;
+    padding: 0;
+    width: sizes-v2.rc-size-v2('size-16-v2');
+
+    &:focus-visible {
+      outline: borders-v2.rc-stroke-v2('border-width-focus-v2') solid
+        rgb(var(--v-theme-border-focus-actual-v2));
+      outline-offset: 2px;
+      border-radius: borders-v2.rc-radius-v2('radius-full-v2');
+    }
+
+    .v-icon {
+      @include sizes-v2.rc-icon-size-v2('icon-small-v2');
+
+      color: inherit;
+    }
+  }
+}
+
+.rc-ses-tooltip-v2__overlay.v-overlay__content {
+  background: transparent !important;
+  box-shadow: none !important;
+  color: inherit;
+  opacity: 1 !important;
+  overflow: visible;
+  padding: 0 !important;
+}
+
+.rc-ses-tooltip-v2__panel {
+  @include elevation-v2.rc-elevation-v2('elevation-md-v2');
+  @include typo-v2.rc-typography-v2('body-small-v2');
+
+  background-color: rgb(var(--v-theme-surface-base-v2));
+  border: borders-v2.rc-stroke-v2('border-width-default-v2') solid
+    rgb(var(--v-theme-border-subtle-v2));
+  border-radius: borders-v2.rc-radius-v2('radius-4-v2');
+  box-sizing: border-box;
+  color: rgb(var(--v-theme-text-default-v2));
+  max-width: 100%;
+  padding: spacing-v2.rc-spacing-v2('spacing-12-v2')
+    spacing-v2.rc-spacing-v2('spacing-16-v2');
+  position: relative;
+
+  &::after {
+    background-color: rgb(var(--v-theme-surface-base-v2));
+    border: borders-v2.rc-stroke-v2('border-width-default-v2') solid
+      rgb(var(--v-theme-border-subtle-v2));
+    box-sizing: border-box;
+    content: '';
+    height: $arrow-size;
+    position: absolute;
+    transform: rotate(45deg);
+    width: $arrow-size;
+  }
+}
+
+.rc-ses-tooltip-v2__overlay--top .rc-ses-tooltip-v2__panel::after {
+  border-left: none;
+  border-top: none;
+  bottom: $arrow-inset;
+  left: 50%;
+  margin-left: $arrow-inset;
+}
+
+.rc-ses-tooltip-v2__overlay--bottom .rc-ses-tooltip-v2__panel::after {
+  border-bottom: none;
+  border-right: none;
+  left: 50%;
+  margin-left: $arrow-inset;
+  top: $arrow-inset;
+}
+
+.rc-ses-tooltip-v2__overlay--left .rc-ses-tooltip-v2__panel::after {
+  border-bottom: none;
+  border-left: none;
+  margin-top: $arrow-inset;
+  right: $arrow-inset;
+  top: 50%;
+}
+
+.rc-ses-tooltip-v2__overlay--right .rc-ses-tooltip-v2__panel::after {
+  border-right: none;
+  border-top: none;
+  left: $arrow-inset;
+  margin-top: $arrow-inset;
+  top: 50%;
+}
+
+.rc-ses-tooltip-v2__title {
+  @include typo-v2.rc-typography-v2('h4-v2');
+
+  color: rgb(var(--v-theme-text-default-v2));
+  margin: 0 0 spacing-v2.rc-spacing-v2('spacing-4-v2');
+}
+
+.rc-ses-tooltip-v2__text {
+  margin: 0;
+}

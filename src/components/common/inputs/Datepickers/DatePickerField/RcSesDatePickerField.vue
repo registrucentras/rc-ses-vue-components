@@ -1,4 +1,5 @@
 <template>
+  <!-- SUPERSEDED: prefer RcSesDatePickerV2 for new work. Kept for migration. -->
   <RcSesFieldWrapper
     :label="fieldLabel"
     :description="fieldDescription"

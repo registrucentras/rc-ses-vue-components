@@ -7,6 +7,7 @@
 </template>
 
 <script>
+import 'vuetify/styles'
 import '../src/styles/shared/index.scss'
 import '../src/styles/shared/storybook.scss'
 export default {

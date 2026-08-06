@@ -1,7 +1,18 @@
 <template>
   <!-- eslint-disable-next-line vuejs-accessibility/interactive-supports-focus -- tabindex bound when selectable: 0 enabled / -1 disabled -->
   <li
-    :class="rootClasses"
+    :class="[
+      rootClasses,
+      {
+        'rc-ses-advanced-list-item-v2--no-start': !(
+          (props.showLeading && $slots.leading) ||
+          (props.showLeadingMedia && $slots['leading-media'])
+        ),
+        'rc-ses-advanced-list-item-v2--no-trailing': !(
+          props.showTrailing && $slots.trailing
+        ),
+      },
+    ]"
     :style="rootStyle"
     :role="isListboxOption ? 'option' : undefined"
     :tabindex="tabIndex"
@@ -13,18 +24,26 @@
   >
     <div class="rc-ses-advanced-list-item-v2__body">
       <div
-        v-if="props.showLeading && $slots.leading"
-        class="rc-ses-advanced-list-item-v2__leading"
+        v-if="
+          (props.showLeading && $slots.leading) ||
+          (props.showLeadingMedia && $slots['leading-media'])
+        "
+        class="rc-ses-advanced-list-item-v2__start"
       >
-        <slot name="leading" />
-      </div>
+        <div
+          v-if="props.showLeading && $slots.leading"
+          class="rc-ses-advanced-list-item-v2__leading"
+        >
+          <slot name="leading" />
+        </div>
 
-      <div
-        v-if="props.showLeadingMedia && $slots['leading-media']"
-        class="rc-ses-advanced-list-item-v2__leading-media"
-        aria-hidden="true"
-      >
-        <slot name="leading-media" />
+        <div
+          v-if="props.showLeadingMedia && $slots['leading-media']"
+          class="rc-ses-advanced-list-item-v2__leading-media"
+          aria-hidden="true"
+        >
+          <slot name="leading-media" />
+        </div>
       </div>
 
       <div class="rc-ses-advanced-list-item-v2__content">
@@ -83,9 +102,9 @@
 <script setup lang="ts">
 import { computed, inject } from 'vue'
 
-import { advancedListV2Key } from '@/components/common/AdvancedListV2/context'
 import advancedListItemV2Defaults from '@/components/common/AdvancedListItemV2/defaults'
 import type { AdvancedListItemProps } from '@/components/common/AdvancedListItemV2/types'
+import { advancedListV2Key } from '@/components/common/AdvancedListV2/context'
 
 import './style.scss'
 
@@ -100,9 +119,7 @@ const emit = defineEmits<{
 
 const listContext = inject(advancedListV2Key, null)
 
-const isListboxOption = computed(
-  () => props.selectable && !!listContext?.isListbox.value,
-)
+const isListboxOption = computed(() => props.selectable && !!listContext?.isListbox.value)
 
 const tabIndex = computed(() => {
   if (!props.selectable) {
@@ -115,6 +132,7 @@ const tabIndex = computed(() => {
 const rootClasses = computed(() => [
   'rc-ses-advanced-list-item-v2',
   `rc-ses-advanced-list-item-v2--${props.container}`,
+  `rc-ses-advanced-list-item-v2--wrap-${props.wrap}`,
   {
     'rc-ses-advanced-list-item-v2--selectable': props.selectable,
     'rc-ses-advanced-list-item-v2--selected': props.selected,

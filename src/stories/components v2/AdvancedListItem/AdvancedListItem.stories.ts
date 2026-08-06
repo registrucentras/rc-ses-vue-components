@@ -22,6 +22,12 @@ const meta: Meta<typeof RcSesAdvancedListItemV2> = {
       options: ['card', 'row'],
       description: 'Card = bordered tile; Row = divider list row',
     },
+    wrap: {
+      control: 'select',
+      options: ['auto', 'off', 'stacked'],
+      description:
+        'Layout axis (prop, not breakpoint). Auto = horizontal back-compat; Off = single-line title + ellipsis; Stacked = mobile (trailing on top, content below).',
+    },
     title: { control: 'text' },
     subtitle: { control: 'text' },
     showLeading: {
@@ -126,6 +132,7 @@ export const Default: Story = (args) => ({
 })
 Default.args = {
   container: 'card',
+  wrap: 'auto',
   title: 'Item title',
   subtitle: 'Supporting subtitle',
   showLeading: true,
@@ -439,6 +446,149 @@ export const WithSlots: Story = () => ({
               Optional description slot content.
             </RcSesAdvancedListItemV2>
           </RcSesAdvancedListV2>
+        </div>
+      </div>
+    </div>
+  `,
+})
+
+export const Wrap: Story = () => ({
+  components: {
+    RcSesAdvancedListV2,
+    RcSesAdvancedListItemV2,
+    RcSesButtonV2,
+    RcSesBadgeV2,
+    RcSesCheckboxV2,
+  },
+  template: `
+    <div class="storybook-field">
+      <div class="storybook-field-view">
+        <div class="advanced-list-story" style="display: flex; flex-direction: column; gap: 24px;">
+          <div>
+            <p class="text-body-small-v2" style="margin-bottom: 8px;">
+              Auto — default horizontal layout (back-compat)
+            </p>
+            <RcSesAdvancedListV2 accessible-label="Wrap auto">
+              <RcSesAdvancedListItemV2
+                wrap="auto"
+                title="Option A1"
+                subtitle="Supporting detail A1"
+                :show-meta="false"
+                :show-badge="false"
+                :show-expanded="false"
+              >
+                <template #trailing>
+                  <RcSesButtonV2 variant="link" size="small" prepend-icon="$notePencil">Edit</RcSesButtonV2>
+                  <RcSesButtonV2 variant="link" size="small" prepend-icon="$trash">Remove</RcSesButtonV2>
+                </template>
+              </RcSesAdvancedListItemV2>
+            </RcSesAdvancedListV2>
+          </div>
+
+          <div style="max-width: 220px;">
+            <p class="text-body-small-v2" style="margin-bottom: 8px;">
+              Off — narrow tile; title single line + ellipsis
+            </p>
+            <RcSesAdvancedListV2 accessible-label="Wrap off">
+              <RcSesAdvancedListItemV2
+                wrap="off"
+                title="Very long option title that should truncate with an ellipsis"
+                subtitle="Supporting detail B1"
+                :show-leading="false"
+                :show-trailing="false"
+                :show-meta="false"
+                :show-badge="false"
+                :show-expanded="false"
+              />
+            </RcSesAdvancedListV2>
+          </div>
+
+          <div style="max-width: 375px;">
+            <p class="text-body-small-v2" style="margin-bottom: 8px;">
+              Stacked — mobile (trailing top-right; content full width below). Practical min ~250px with two actions.
+            </p>
+            <RcSesAdvancedListV2 accessible-label="Wrap stacked">
+              <RcSesAdvancedListItemV2
+                wrap="stacked"
+                title="Option C1"
+                subtitle="Supporting detail C1"
+                :show-meta="false"
+                :show-badge="false"
+                :show-expanded="false"
+              >
+                <template #trailing>
+                  <RcSesButtonV2 variant="link" size="small" prepend-icon="$notePencil">Edit</RcSesButtonV2>
+                  <RcSesButtonV2 variant="link" size="small" prepend-icon="$trash">Remove</RcSesButtonV2>
+                </template>
+              </RcSesAdvancedListItemV2>
+
+              <RcSesAdvancedListItemV2
+                wrap="stacked"
+                title="Option C2"
+                subtitle="Supporting detail C2"
+                :show-meta="false"
+                :show-badge="false"
+                :show-expanded="false"
+              >
+                <template #trailing>
+                  <RcSesBadgeV2 type="warning" size="small">Pending</RcSesBadgeV2>
+                </template>
+              </RcSesAdvancedListItemV2>
+
+              <RcSesAdvancedListItemV2
+                wrap="stacked"
+                title="Option C3"
+                subtitle="Supporting detail C3"
+                selectable
+                selected
+                :show-meta="false"
+                :show-badge="false"
+                :show-trailing="false"
+                :show-expanded="false"
+              >
+                <template #leading>
+                  <RcSesCheckboxV2
+                    :model-value="true"
+                    :show-label="false"
+                    accessible-label="Option C3"
+                  />
+                </template>
+              </RcSesAdvancedListItemV2>
+
+              <RcSesAdvancedListItemV2
+                wrap="stacked"
+                title="Option C4 with slots"
+                subtitle="Supporting detail C4"
+                show-leading-media
+                show-badge
+                show-meta
+                :show-expanded="true"
+              >
+                <template #leading>
+                  <RcSesButtonV2 variant="link" size="small" icon="$caretUp" accessible-label="Move up" />
+                  <RcSesButtonV2 variant="link" size="small" icon="$caretDown" accessible-label="Move down" />
+                </template>
+                <template #leading-media>
+                  <span style="font-weight: 600;">AB</span>
+                </template>
+                <template #badge>
+                  <RcSesBadgeV2 type="info" size="small">Label</RcSesBadgeV2>
+                </template>
+                <template #meta>
+                  <span class="text-body-caption-v2">Meta one</span>
+                  <span class="text-body-caption-v2">Meta two</span>
+                </template>
+                <template #trailing>
+                  <RcSesButtonV2 variant="link" size="small" prepend-icon="$notePencil">Edit</RcSesButtonV2>
+                  <RcSesButtonV2 variant="link" size="small" prepend-icon="$trash">Remove</RcSesButtonV2>
+                </template>
+                <template #expanded>
+                  Optional expanded panel content.
+                </template>
+                Optional description slot content.
+              </RcSesAdvancedListItemV2>
+            </RcSesAdvancedListV2>
+          </div>
         </div>
       </div>
     </div>

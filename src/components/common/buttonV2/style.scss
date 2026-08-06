@@ -9,6 +9,11 @@
   @include typo-v2.rc-typography-v2('button-compact-v2');
   padding-left: spacing-v2.rc-spacing-v2('spacing-16-v2');
   padding-right: spacing-v2.rc-spacing-v2('spacing-16-v2');
+  text-transform: none;
+
+  .v-btn__content {
+    text-transform: none;
+  }
 
   &--loading {
     pointer-events: none !important;

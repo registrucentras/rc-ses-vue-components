@@ -1,6 +1,9 @@
 @use 'sass:map';
 @use 'variables' as var;
+@use 'layout-v2' as layout-v2;
 
+// Base tokens = Desktop / Tablet (lg · ≥ 1200, md · 900–1199).
+// Body, Button, H4 deliberately do not scale (a11y / iOS zoom).
 $rc-typography-v2: (
   'h1-v2': (
     'size': 2.25rem,
@@ -82,6 +85,58 @@ $rc-typography-v2: (
   ),
 );
 
+// Responsive overrides for display / heading styles only.
+// sm-v2 → applied below md (max-width < 900): covers 600–899
+// xs-v2 → applied below sm (max-width < 600)
+$rc-typography-v2-responsive: (
+  'h1-v2': (
+    'sm-v2': (
+      'size': 1.875rem,
+      'line-height': 2.25rem,
+    ),
+    'xs-v2': (
+      'size': 1.75rem,
+      'line-height': 2rem,
+    ),
+  ),
+  'h2-v2': (
+    'sm-v2': (
+      'size': 1.375rem,
+      'line-height': 1.75rem,
+    ),
+    'xs-v2': (
+      'size': 1.25rem,
+      'line-height': 1.625rem,
+    ),
+  ),
+  'h3-v2': (
+    'xs-v2': (
+      'size': 1rem,
+      'line-height': 1.375rem,
+    ),
+  ),
+  'card-title-v2': (
+    'sm-v2': (
+      'size': 1.125rem,
+      'line-height': 1.625rem,
+    ),
+    'xs-v2': (
+      'size': 1.125rem,
+      'line-height': 1.5rem,
+    ),
+  ),
+);
+
+@mixin rc-typography-v2-size-line($props) {
+  @if map.has-key($props, 'size') {
+    font-size: map.get($props, 'size');
+  }
+
+  @if map.has-key($props, 'line-height') {
+    line-height: map.get($props, 'line-height');
+  }
+}
+
 @mixin rc-typography-v2($style) {
   $props: map.get($rc-typography-v2, $style);
 
@@ -94,6 +149,25 @@ $rc-typography-v2: (
   font-weight: map.get($props, 'weight');
   line-height: map.get($props, 'line-height');
   letter-spacing: map.get($props, 'letter-spacing');
+
+  $responsive: map.get($rc-typography-v2-responsive, $style);
+
+  @if $responsive {
+    $sm: map.get($responsive, 'sm-v2');
+    $xs: map.get($responsive, 'xs-v2');
+
+    @if $sm {
+      @include layout-v2.rc-breakpoint-v2-down('md-v2') {
+        @include rc-typography-v2-size-line($sm);
+      }
+    }
+
+    @if $xs {
+      @include layout-v2.rc-breakpoint-v2-down('sm-v2') {
+        @include rc-typography-v2-size-line($xs);
+      }
+    }
+  }
 }
 
 @mixin rc-v2-root() {
