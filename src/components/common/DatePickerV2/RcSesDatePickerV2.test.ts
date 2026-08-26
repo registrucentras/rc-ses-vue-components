@@ -42,6 +42,7 @@ const InputV2Stub = {
     disabled: { type: Boolean, default: false },
     showLabel: { type: Boolean, default: true },
   },
+  emits: ['update:modelValue', 'focus', 'blur', 'keydown'],
   template: `
     <div class="rc-ses-input-v2-stub">
       <label v-if="showLabel && label">{{ label }}</label>
@@ -51,7 +52,10 @@ const InputV2Stub = {
         :value="modelValue"
         :placeholder="placeholder"
         :disabled="disabled"
-        readonly
+        @input="$emit('update:modelValue', ($event.target).value)"
+        @focus="$emit('focus', $event)"
+        @blur="$emit('blur', $event)"
+        @keydown="$emit('keydown', $event)"
       />
       <slot name="trailing" />
     </div>
@@ -91,6 +95,13 @@ const renderPicker = (
   return { ...result, model }
 }
 
+const calendarButton = () =>
+  screen.getByRole('button', { name: /open calendar|atidaryti kalendorių/i })
+
+const openCalendar = async () => {
+  await fireEvent.click(calendarButton())
+}
+
 describe('RcSesDatePickerV2', () => {
   it('renders trigger label and calendar icon', () => {
     renderPicker({
@@ -111,7 +122,7 @@ describe('RcSesDatePickerV2', () => {
       null,
     )
 
-    await fireEvent.click(screen.getByRole('combobox'))
+    await openCalendar()
     expect(screen.getByRole('dialog')).toBeInTheDocument()
 
     const day = screen.getByRole('gridcell', { name: /15/i })
@@ -131,7 +142,7 @@ describe('RcSesDatePickerV2', () => {
       [null, null],
     )
 
-    await fireEvent.click(screen.getByRole('combobox'))
+    await openCalendar()
 
     const days = screen.getAllByRole('gridcell')
     const enabled = days.filter((el) => !(el as HTMLButtonElement).disabled)
@@ -152,7 +163,7 @@ describe('RcSesDatePickerV2', () => {
       showExplainer: false,
     })
 
-    await fireEvent.click(screen.getByRole('combobox'))
+    await openCalendar()
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
   })
 
@@ -166,7 +177,7 @@ describe('RcSesDatePickerV2', () => {
       ['2026-06-10', null],
     )
 
-    await fireEvent.click(screen.getByRole('combobox'))
+    await openCalendar()
 
     const startDay = screen
       .getAllByRole('gridcell')
@@ -175,5 +186,160 @@ describe('RcSesDatePickerV2', () => {
     expect(startDay).toBeTruthy()
     expect(startDay?.textContent).toBe('10')
     expect(startDay?.className).toContain('rc-ses-date-picker-v2__day--range-start')
+  })
+
+  it('accepts a manually typed single date on blur', async () => {
+    const { model } = renderPicker(
+      {
+        label: 'Date',
+        showExplainer: false,
+      },
+      null,
+    )
+
+    const input = screen.getByRole('textbox')
+    await fireEvent.focus(input)
+    await fireEvent.update(input, '2026-08-20')
+    await fireEvent.blur(input)
+
+    expect(model.value).toBe('2026-08-20')
+    expect((input as HTMLInputElement).value).toBe('2026-08-20')
+  })
+
+  it('reverts invalid typed date on blur', async () => {
+    const { model } = renderPicker(
+      {
+        label: 'Date',
+        showExplainer: false,
+      },
+      '2026-01-15',
+    )
+
+    const input = screen.getByRole('textbox')
+    await fireEvent.focus(input)
+    expect((input as HTMLInputElement).value).toBe('2026-01-15')
+
+    await fireEvent.update(input, 'not-a-date')
+    await fireEvent.blur(input)
+
+    expect(model.value).toBe('2026-01-15')
+    expect((input as HTMLInputElement).value).toBe('2026-01-15')
+  })
+
+  it('rejects overflow calendar dates on blur', async () => {
+    const { model } = renderPicker(
+      {
+        label: 'Date',
+        showExplainer: false,
+      },
+      '2026-01-15',
+    )
+
+    const input = screen.getByRole('textbox')
+    await fireEvent.focus(input)
+    await fireEvent.update(input, '2026-02-31')
+    await fireEvent.blur(input)
+
+    expect(model.value).toBe('2026-01-15')
+    expect((input as HTMLInputElement).value).toBe('2026-01-15')
+  })
+
+  it('does not rewrite an end-only range on blur when nothing was typed', async () => {
+    const { model } = renderPicker(
+      {
+        label: 'Date range',
+        range: true,
+        showExplainer: false,
+      },
+      [null, '2026-06-15'],
+    )
+
+    const input = screen.getByRole('textbox')
+    expect((input as HTMLInputElement).value).toBe('2026-06-15')
+
+    await fireEvent.focus(input)
+    await fireEvent.blur(input)
+
+    expect(model.value).toEqual([null, '2026-06-15'])
+  })
+
+  it('accepts a manually typed range on Enter', async () => {
+    const { model } = renderPicker(
+      {
+        label: 'Date range',
+        range: true,
+        showExplainer: false,
+      },
+      [null, null],
+    )
+
+    const input = screen.getByRole('textbox')
+    await fireEvent.focus(input)
+    await fireEvent.update(input, '2026-06-10 – 2026-06-15')
+    await fireEvent.keyDown(input, { key: 'Enter' })
+
+    expect(model.value).toEqual(['2026-06-10', '2026-06-15'])
+  })
+
+  it('clears the value when the input is emptied', async () => {
+    const { model } = renderPicker(
+      {
+        label: 'Date',
+        showExplainer: false,
+      },
+      '2026-03-01',
+    )
+
+    const input = screen.getByRole('textbox')
+    await fireEvent.focus(input)
+    await fireEvent.update(input, '')
+    await fireEvent.blur(input)
+
+    expect(model.value).toBeNull()
+  })
+
+  it('opens calendar on typed year without requiring blur commit first', async () => {
+    renderPicker(
+      {
+        label: 'Date',
+        showExplainer: false,
+      },
+      '2026-06-10',
+    )
+
+    const input = screen.getByRole('textbox')
+    const button = calendarButton()
+
+    await fireEvent.focus(input)
+    await fireEvent.update(input, '2015')
+    await fireEvent.blur(input, { relatedTarget: button })
+    await fireEvent.click(button)
+
+    const dialog = screen.getByRole('dialog')
+    expect(dialog).toBeInTheDocument()
+    expect(dialog.getAttribute('aria-label') ?? '').toMatch(/2015/)
+    expect((input as HTMLInputElement).value).toBe('2015')
+  })
+
+  it('keeps calendar selection when typed text differs', async () => {
+    const { model } = renderPicker(
+      {
+        label: 'Date',
+        showExplainer: false,
+      },
+      null,
+    )
+
+    const input = screen.getByRole('textbox')
+    await fireEvent.focus(input)
+    await fireEvent.update(input, '2015-08-20')
+    await fireEvent.keyDown(input, { key: 'ArrowDown' })
+
+    expect(screen.getByRole('dialog').getAttribute('aria-label') ?? '').toMatch(/2015/)
+
+    const day = screen.getByRole('gridcell', { name: /2015.*15|15.*2015/i })
+    await fireEvent.click(day)
+
+    expect(model.value).toBe('2015-08-15')
   })
 })

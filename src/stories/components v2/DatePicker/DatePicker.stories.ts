@@ -17,7 +17,8 @@ const meta: Meta<typeof RcSesDatePickerV2> = {
       control: 'boolean',
     },
     format: {
-      description: 'Display format for the trigger (date-fns).',
+      description:
+        'Display and manual-entry format (date-fns). Users can type a date in this format and commit with Enter or blur.',
       control: 'text',
     },
     minDate: {

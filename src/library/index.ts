@@ -13,6 +13,7 @@ import RcSesChipSelectV2 from '@/components/common/ChipSelectV2/RcSesChipSelectV
 import RcSesDatePickerV2 from '@/components/common/DatePickerV2/RcSesDatePickerV2.vue'
 import RcSesDropdownV2 from '@/components/common/DropdownV2/RcSesDropdownV2.vue'
 import RcSesError from '@/components/common/Error/RcSesError.vue'
+import RcSesErrorSummaryV2 from '@/components/common/ErrorSummaryV2/RcSesErrorSummaryV2.vue'
 import RcSesFilterDropdownV2 from '@/components/common/FilterDropdownV2/RcSesFilterDropdownV2.vue'
 import RcSesFiltersV2 from '@/components/common/FiltersV2/RcSesFiltersV2.vue'
 import RcSesFullPageLoaderV2 from '@/components/common/FullPageLoaderV2/RcSesFullPageLoaderV2.vue'
@@ -165,6 +166,7 @@ export function createRcSesComponents(options: object = {}): Plugin<[]> {
     app.component('RcSesImageAndTextV2', RcSesImageAndTextV2)
     app.component('RcSesSnackbarV2', RcSesSnackbarV2)
     app.component('RcSesInlineAlertV2', RcSesInlineAlertV2)
+    app.component('RcSesErrorSummaryV2', RcSesErrorSummaryV2)
     app.component('RcSesLoaderV2', RcSesLoaderV2)
     app.component('RcSesFullPageLoaderV2', RcSesFullPageLoaderV2)
     app.component('RcSesStepperV2', RcSesStepperV2)
@@ -196,7 +198,7 @@ export { RcSesBadgeV2, RcSesButtonV2, RcSesToggleV2 }
 export { RcSesAdvancedListV2, RcSesAdvancedListItemV2 }
 export { RcSesRadioGroupV2, RcSesRadioV2, RcSesRadioSelectableAreaV2 }
 export { RcSesImageAndTextV2, RcSesSnackbarV2 }
-export { RcSesInlineAlertV2, RcSesStepperV2 }
+export { RcSesInlineAlertV2, RcSesErrorSummaryV2, RcSesStepperV2 }
 export { RcSesCheckboxV2, RcSesCheckboxSelectableAreaV2 }
 export { RcSesChipSelectV2 }
 export { RcSesFilterDropdownV2, RcSesFiltersV2 }

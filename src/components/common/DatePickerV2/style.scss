@@ -12,25 +12,52 @@ $day-size: sizes-v2.rc-size-v2('size-44-v2');
   width: 100%;
 
   &__trigger {
-    cursor: pointer;
     width: 100%;
 
     .rc-ses-input-v2__field,
     .rc-ses-input-v2__control,
+    .v-field,
     .v-field__input,
     input {
-      cursor: pointer;
+      cursor: text;
     }
   }
 
   &__trigger--disabled {
     cursor: not-allowed;
+
+    .rc-ses-input-v2__field,
+    .rc-ses-input-v2__control,
+    .v-field,
+    .v-field__input,
+    input {
+      cursor: not-allowed;
+    }
   }
 
-  &__calendar-icon {
+  &__calendar-button {
+    align-items: center;
+    appearance: none;
+    background: transparent;
+    border: 0;
+    border-radius: borders-v2.rc-radius-v2('radius-4-v2');
     color: rgb(var(--v-theme-text-muted-v2));
+    cursor: pointer;
     display: inline-flex;
     line-height: 0;
+    margin: 0;
+    padding: 0;
+
+    &:disabled {
+      cursor: not-allowed;
+      opacity: 0.5;
+    }
+
+    &:focus-visible {
+      outline: borders-v2.rc-stroke-v2('stroke-2-v2') solid
+        rgb(var(--v-theme-border-focus-actual-v2));
+      outline-offset: 2px;
+    }
 
     .v-icon {
       @include sizes-v2.rc-icon-size-v2('icon-medium-v2');
