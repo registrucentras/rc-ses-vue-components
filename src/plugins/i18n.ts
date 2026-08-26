@@ -52,6 +52,10 @@ const i18n = () => {
             close: 'Uždaryti',
           },
 
+          RcSesErrorSummaryV2: {
+            title: 'Pataisykite šias klaidas',
+          },
+
           RcSesRadioV2: {
             loading: 'Kraunama...',
           },
@@ -172,6 +176,10 @@ const i18n = () => {
           },
           RcSesInlineAlertV2: {
             close: 'Close',
+          },
+
+          RcSesErrorSummaryV2: {
+            title: 'Fix these errors',
           },
 
           RcSesRadioV2: {
