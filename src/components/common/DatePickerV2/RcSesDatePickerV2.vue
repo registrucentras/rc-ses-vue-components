@@ -1,5 +1,5 @@
 <template>
-  <div class="rc-ses-date-picker-v2">
+  <div ref="rootEl" class="rc-ses-date-picker-v2">
     <v-menu
       v-model="open"
       :close-on-content-click="false"
@@ -10,21 +10,10 @@
       :content-class="'rc-ses-date-picker-v2__overlay'"
     >
       <template #activator="{ props: menuProps }">
-        <div
-          v-bind="menuProps"
-          :class="triggerClasses"
-          role="combobox"
-          :aria-expanded="open"
-          :aria-controls="panelId"
-          aria-haspopup="dialog"
-          :aria-disabled="props.disabled || undefined"
-          :aria-label="triggerAriaLabel"
-          tabindex="0"
-          @keydown="onTriggerKeydown"
-        >
+        <div :class="triggerClasses">
           <RcSesInputV2
             :id="inputId"
-            :model-value="displayValue"
+            v-model="inputText"
             :label="props.label"
             :helper="props.helper"
             :error="props.error"
@@ -37,14 +26,27 @@
             :show-label="props.showLabel"
             :show-explainer="props.showExplainer"
             :show-helper="props.showHelper"
-            readonly
             :show-trailing="false"
-            tabindex="-1"
+            :aria-expanded="open"
+            :aria-controls="panelId"
+            aria-haspopup="dialog"
+            @focus="onInputFocus"
+            @blur="onInputBlur"
+            @keydown="onInputKeydown"
           >
             <template #leading>
-              <span class="rc-ses-date-picker-v2__calendar-icon" aria-hidden="true">
-                <v-icon icon="$calendar" />
-              </span>
+              <button
+                v-bind="menuProps"
+                type="button"
+                class="rc-ses-date-picker-v2__calendar-button"
+                :aria-label="openCalendarLabel"
+                :aria-expanded="open"
+                :aria-controls="panelId"
+                aria-haspopup="dialog"
+                :disabled="props.disabled || undefined"
+              >
+                <v-icon icon="$calendar" aria-hidden="true" />
+              </button>
             </template>
           </RcSesInputV2>
         </div>
@@ -131,9 +133,11 @@ import {
   format as formatDate,
   isAfter,
   isBefore,
+  isMatch,
   isSameDay,
   isToday,
   isValid,
+  parse,
   parseISO,
   startOfMonth,
   subDays,
@@ -170,10 +174,14 @@ const generatedId = uuidv4()
 const inputId = computed(() => props.id ?? generatedId)
 const panelId = computed(() => `${inputId.value}-panel`)
 
+const rootEl = ref<HTMLElement | null>(null)
 const viewDate = ref(new Date())
 const focusedIso = ref<string | null>(null)
 const hoverIso = ref<string | null>(null)
 const rangeDraftStart = ref<string | null>(null)
+const inputText = ref('')
+const inputFocused = ref(false)
+const skipCommitOnClose = ref(false)
 
 const dateFnsLocale = computed(() => (i18next.language?.startsWith('lt') ? lt : enUS))
 
@@ -190,6 +198,10 @@ const previousMonthLabel = computed(() =>
 
 const nextMonthLabel = computed(() =>
   t('RcSesDatePickerV2.nextMonth', { ns: 'components' }),
+)
+
+const openCalendarLabel = computed(() =>
+  t('RcSesDatePickerV2.openCalendar', { ns: 'components' }),
 )
 
 const placeholderText = computed(
@@ -210,18 +222,6 @@ const triggerClasses = computed(() => [
   },
 ])
 
-const triggerAriaLabel = computed(() => {
-  if (props.showLabel && props.label) {
-    return undefined
-  }
-
-  return (
-    props.accessibleLabel ??
-    props.label ??
-    t('RcSesDatePickerV2.openCalendar', { ns: 'components' })
-  )
-})
-
 const toIso = (date: Date) => formatDate(date, 'yyyy-MM-dd')
 
 const parseIso = (value: string | null | undefined): Date | null => {
@@ -231,6 +231,44 @@ const parseIso = (value: string | null | undefined): Date | null => {
 
   const parsed = parseISO(value)
   return isValid(parsed) ? parsed : null
+}
+
+const parseTypedDate = (value: string): Date | null => {
+  const trimmed = value.trim()
+  if (!trimmed) {
+    return null
+  }
+
+  if (isMatch(trimmed, props.format)) {
+    const parsed = parse(trimmed, props.format, new Date())
+    // Round-trip rejects overflow dates (e.g. 2026-02-31 → Mar 3).
+    if (isValid(parsed) && formatDate(parsed, props.format) === trimmed) {
+      return parsed
+    }
+  }
+
+  const isoParsed = parseISO(trimmed)
+  if (isValid(isoParsed) && toIso(isoParsed) === trimmed) {
+    return isoParsed
+  }
+
+  return null
+}
+
+const isPickerInteractionTarget = (target: EventTarget | null) => {
+  if (!(target instanceof Element)) {
+    return false
+  }
+
+  if (rootEl.value?.contains(target)) {
+    return true
+  }
+
+  // Menu content is teleported outside the root.
+  return Boolean(
+    target.closest('.rc-ses-date-picker-v2__panel') ||
+      target.closest('.rc-ses-date-picker-v2__overlay'),
+  )
 }
 
 const singleValue = computed(() => {
@@ -280,6 +318,16 @@ const displayValue = computed(() => {
   return singleValue.value ? formatDisplayDate(singleValue.value) : ''
 })
 
+watch(
+  displayValue,
+  (value) => {
+    if (!inputFocused.value) {
+      inputText.value = value
+    }
+  },
+  { immediate: true },
+)
+
 const minDateObj = computed(() => parseIso(props.minDate))
 const maxDateObj = computed(() => parseIso(props.maxDate))
 
@@ -293,6 +341,169 @@ const isDateDisabled = (date: Date) => {
   }
 
   return false
+}
+
+const splitRangeInput = (value: string) =>
+  value
+    // Prefer en/em dash or arrow; only treat ASCII "-" as a separator when spaced
+    // so ISO-like dates (yyyy-MM-dd) are not split apart.
+    .split(/\s*[–—→]\s*|\s+-\s+/)
+    .map((part) => part.trim())
+    .filter(Boolean)
+
+/** Resolve a calendar month/year from typed text (full date, yyyy-MM, or year). */
+const resolveCalendarAnchor = (value: string): Date | null => {
+  const trimmed = value.trim()
+  if (!trimmed) {
+    return null
+  }
+
+  const firstPart = props.range ? splitRangeInput(trimmed)[0] ?? trimmed : trimmed
+
+  const fullDate = parseTypedDate(firstPart)
+  if (fullDate) {
+    return fullDate
+  }
+
+  if (/^\d{4}-\d{2}$/.test(firstPart)) {
+    const yearMonth = parse(firstPart, 'yyyy-MM', new Date())
+    if (isValid(yearMonth) && formatDate(yearMonth, 'yyyy-MM') === firstPart) {
+      return yearMonth
+    }
+  }
+
+  const yearMatch = firstPart.match(/^(\d{4})\b/)
+  if (yearMatch) {
+    const year = Number(yearMatch[1])
+    if (year >= 1000 && year <= 9999) {
+      return new Date(year, viewDate.value.getMonth(), 1)
+    }
+  }
+
+  return null
+}
+
+const commitTypedValue = () => {
+  if (props.disabled || inputText.value === displayValue.value) {
+    return
+  }
+
+  const raw = inputText.value.trim()
+
+  if (!raw) {
+    model.value = props.range ? [null, null] : null
+    rangeDraftStart.value = null
+    hoverIso.value = null
+    inputText.value = displayValue.value
+    return
+  }
+
+  if (props.range) {
+    const parts = splitRangeInput(raw)
+
+    if (parts.length === 1) {
+      const startDate = parseTypedDate(parts[0]!)
+      if (!startDate || isDateDisabled(startDate)) {
+        inputText.value = displayValue.value
+        return
+      }
+
+      const startIso = toIso(startDate)
+      model.value = [startIso, null]
+      rangeDraftStart.value = startIso
+      hoverIso.value = startIso
+      viewDate.value = startDate
+      inputText.value = displayValue.value
+      return
+    }
+
+    if (parts.length >= 2) {
+      const startDate = parseTypedDate(parts[0]!)
+      const endDate = parseTypedDate(parts[1]!)
+      if (
+        !startDate ||
+        !endDate ||
+        isDateDisabled(startDate) ||
+        isDateDisabled(endDate)
+      ) {
+        inputText.value = displayValue.value
+        return
+      }
+
+      const startIso = toIso(startDate)
+      const endIso = toIso(endDate)
+      model.value = isAfter(startDate, endDate) ? [endIso, startIso] : [startIso, endIso]
+      rangeDraftStart.value = null
+      hoverIso.value = null
+      viewDate.value = startDate
+      inputText.value = displayValue.value
+      return
+    }
+
+    inputText.value = displayValue.value
+    return
+  }
+
+  const date = parseTypedDate(raw)
+  if (!date || isDateDisabled(date)) {
+    inputText.value = displayValue.value
+    return
+  }
+
+  model.value = toIso(date)
+  viewDate.value = date
+  inputText.value = displayValue.value
+}
+
+const onInputFocus = () => {
+  inputFocused.value = true
+}
+
+const onInputBlur = (event: FocusEvent) => {
+  inputFocused.value = false
+
+  if (isPickerInteractionTarget(event.relatedTarget)) {
+    return
+  }
+
+  // Clicking teleported panel days often has relatedTarget=null while the menu is open.
+  if (open.value) {
+    requestAnimationFrame(() => {
+      if (open.value || isPickerInteractionTarget(document.activeElement)) {
+        return
+      }
+
+      commitTypedValue()
+    })
+    return
+  }
+
+  commitTypedValue()
+}
+
+const onInputKeydown = (event: KeyboardEvent) => {
+  if (props.disabled) {
+    return
+  }
+
+  if (event.key === 'ArrowDown') {
+    event.preventDefault()
+    open.value = true
+    return
+  }
+
+  if (event.key === 'Enter') {
+    event.preventDefault()
+    commitTypedValue()
+    open.value = false
+    return
+  }
+
+  if (event.key === 'Escape' && open.value) {
+    event.preventDefault()
+    open.value = false
+    inputText.value = displayValue.value
+  }
 }
 
 const calendarDays = computed((): DatePickerV2CalendarDay[] => {
@@ -450,6 +661,8 @@ const onSelectDay = (day: DatePickerV2CalendarDay) => {
 
   if (!props.range) {
     model.value = day.iso
+    inputText.value = displayValue.value
+    skipCommitOnClose.value = true
     open.value = false
     return
   }
@@ -458,6 +671,7 @@ const onSelectDay = (day: DatePickerV2CalendarDay) => {
     rangeDraftStart.value = day.iso
     hoverIso.value = day.iso
     model.value = [day.iso, null]
+    inputText.value = displayValue.value
     return
   }
 
@@ -469,6 +683,8 @@ const onSelectDay = (day: DatePickerV2CalendarDay) => {
   model.value = isAfter(startDate, endDate) ? [end, start] : [start, end]
   rangeDraftStart.value = null
   hoverIso.value = null
+  inputText.value = displayValue.value
+  skipCommitOnClose.value = true
   open.value = false
 }
 
@@ -486,22 +702,6 @@ const moveFocus = (deltaDays: number) => {
     }
 
     next = addDays(next, deltaDays > 0 ? 1 : -1)
-  }
-}
-
-const onTriggerKeydown = (event: KeyboardEvent) => {
-  if (props.disabled) {
-    return
-  }
-
-  if (event.key === 'ArrowDown' || event.key === 'Enter' || event.key === ' ') {
-    event.preventDefault()
-    open.value = true
-  }
-
-  if (event.key === 'Escape' && open.value) {
-    event.preventDefault()
-    open.value = false
   }
 }
 
@@ -554,6 +754,17 @@ watch(open, (isOpen) => {
   if (!isOpen) {
     rangeDraftStart.value = null
     hoverIso.value = null
+
+    if (skipCommitOnClose.value) {
+      skipCommitOnClose.value = false
+      inputText.value = displayValue.value
+      return
+    }
+
+    if (!inputFocused.value) {
+      commitTypedValue()
+    }
+
     return
   }
 
@@ -564,12 +775,11 @@ watch(open, (isOpen) => {
     hoverIso.value = rangeStart
   }
 
-  const anchor = singleValue.value || rangeStart || rangeEnd || toIso(new Date())
+  const fromInput = resolveCalendarAnchor(inputText.value)
+  const fromModel = parseIso(singleValue.value || rangeStart || rangeEnd || null)
+  const anchor = fromInput ?? fromModel ?? new Date()
 
-  const parsed = parseIso(anchor)
-  if (parsed) {
-    viewDate.value = parsed
-    focusDay(toIso(parsed))
-  }
+  viewDate.value = anchor
+  focusDay(toIso(anchor))
 })
 </script>
