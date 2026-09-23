@@ -103,14 +103,18 @@
     }
 
     &.v-input--disabled {
+      .v-selection-control--disabled {
+        opacity: 1;
+      }
+
       .v-selection-control:not(.v-selection-control--dirty) .v-switch__track {
         background-color: rgb(var(--v-theme-neutral-200-v2)) !important;
         color: rgb(var(--v-theme-neutral-200-v2)) !important;
       }
 
       .v-selection-control--dirty .v-switch__track {
-        background-color: rgb(var(--v-theme-neutral-500-v2)) !important;
-        color: rgb(var(--v-theme-neutral-500-v2)) !important;
+        background-color: rgb(var(--v-theme-cyan-300-v2)) !important;
+        color: rgb(var(--v-theme-cyan-300-v2)) !important;
       }
 
       .v-label {
