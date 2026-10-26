@@ -8,7 +8,7 @@
 
 ## Prerekvizitai
 
-1. Įsitikinkite, kad turite įdiegtą bent **18.3** arba naujesnę [Node.js](https://nodejs.org/en) versiją;
+1. Įsitikinkite, kad turite įdiegtą [Node.js](https://nodejs.org/en) **24 LTS** versiją (žr. `.nvmrc`; jei naudojate nvm - `nvm use`);
 2. Jei to dar nepadarėte, lokaliai klonuokite `rc-ses-vue-components` projektą:
     ```bash
     git clone git@github.com:registrucentras/rc-ses-vue-components.git

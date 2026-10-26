@@ -1,5 +1,5 @@
 import { fireEvent, render, screen } from '@testing-library/vue'
-import { mount } from '@vue/test-utils'
+import { type MountingOptions, mount } from '@vue/test-utils'
 import I18NextVue from 'i18next-vue'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { nextTick } from 'vue'
@@ -11,7 +11,7 @@ import type { ErrorSummaryProps } from './types'
 
 const { i18next } = initI18n()
 
-const globalMountOptions = {
+const globalMountOptions: MountingOptions<unknown>['global'] = {
   plugins: [[I18NextVue, { i18next }]],
   stubs: {
     'v-icon': true,
